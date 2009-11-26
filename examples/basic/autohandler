@@ -1,0 +1,15 @@
+<%args>
+  $inner => ''
+  $outer => ''
+</%args>
+
+<html>
+  <body>
+    <h1>I asked:</h1>
+    <% $outer %>
+    <h1>Your component answered:</h1>
+    <% $inner %>
+    <h1>And spewed this back at me:</h1>
+    <%perl> $m->call_next(); </%perl>
+  </body>
+</html>

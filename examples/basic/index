@@ -1,0 +1,8 @@
+<%args>
+  $foo => 'world'
+</%args>
+
+Hello <% "$foo!" %>
+
+<& meta &>
+

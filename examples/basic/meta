@@ -1,0 +1,17 @@
+<%args>
+  $very
+</%args>
+
+<h2>Stuff to consider</h2>
+
+<ul>
+  <li>1 + <% $very->deep->value %> = 1</li>
+  <li>
+    Default metasyntactical stuff:
+    <ul>
+      <%perl> for ( $very->deep->list ) {  </%perl>
+      <li><% $_ %></li>
+      <%perl> } </%perl>
+    </ul>
+  </li>
+</ul>

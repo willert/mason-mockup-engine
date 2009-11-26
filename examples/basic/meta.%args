@@ -1,0 +1,8 @@
+---
+very:
+  deep:
+    value: 1
+    list:
+      - foo
+      - bar
+      - baz
