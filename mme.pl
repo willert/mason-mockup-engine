@@ -46,7 +46,7 @@ if ( $@ || $ENV{PV_TEST_PERL} )
  }
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Params/ValidatePP.pm}} = 1;
 package Params::Validate;
 use strict;
@@ -666,7 +666,7 @@ $called = 'N/A' unless defined $called;
 return $called;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Path/Class/Entity.pm}} = 1;
 package Path::Class::Entity;
 $VERSION = '0.17';
@@ -733,7 +733,7 @@ sub relative {
 sub stat { File::stat::stat("$_[0]") }
 sub lstat { File::stat::lstat("$_[0]") }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Path/Class/File.pm}} = 1;
 package Path::Class::File;
 $VERSION = '0.17';
@@ -814,7 +814,7 @@ sub remove {
  return not -e $file;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Path/Class/Dir.pm}} = 1;
 package Path::Class::Dir;
 $VERSION = '0.17';
@@ -1021,7 +1021,7 @@ sub contains {
  return !!(-d $self and (-e $other or -l $other) and $self->subsumes($other));
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Path/Class.pm}} = 1;
 package Path::Class;
 $VERSION = '0.17';
@@ -1037,7 +1037,7 @@ sub dir { Path::Class::Dir ->new(@_) }
 sub foreign_file { Path::Class::File->new_foreign(@_) }
 sub foreign_dir { Path::Class::Dir ->new_foreign(@_) }
 1;
-}\n\n
+}
 BEGIN { $INC{q{AutoLoader.pm}} = 1;
 package AutoLoader;
 use strict;
@@ -1179,7 +1179,7 @@ for my $exported (qw(AUTOLOAD)) {
  }
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Class/Container.pm}} = 1;
 package Class::Container;
 $VERSION = '0.12';
@@ -1603,7 +1603,7 @@ sub validation_spec {
  return (ref($_[0]) || $_[0])->_iterate_ISA(\%VALID_PARAMS, \%VALID_CACHE, { container => {type => HASHREF} });
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Class/Data/Inheritable.pm}} = 1;
 package Class::Data::Inheritable;
 use strict qw(vars subs);
@@ -1632,7 +1632,7 @@ my $alias = "_${attribute}_accessor";
  *{$declaredclass.'::'.$alias} = $accessor;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Config/Any.pm}} = 1;
 package Config::Any;
 use strict;
@@ -1781,7 +1781,7 @@ sub extensions {
  return wantarray ? @ext : \@ext;
 }
 "Drink more beer";
-}\n\n
+}
 BEGIN { $INC{q{Config/Any/Base.pm}} = 1;
 package Config::Any::Base;
 use strict;
@@ -1808,7 +1808,7 @@ sub _require_line {
  . ( $version ? "${module}->VERSION('${version}');" : '' );
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Config/Any/JSON.pm}} = 1;
 package Config::Any::JSON;
 use strict;
@@ -1841,7 +1841,7 @@ require JSON;
 }
 sub requires_any_of { 'JSON::XS', 'JSON::Syck', 'JSON' }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Data/AsObject.pm}} = 1;
 package Data::AsObject;
 use warnings;
@@ -1894,7 +1894,7 @@ if ($type eq "ARRAY") {
 return wantarray ? @result : $result[0];
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Data/AsObject/Array.pm}} = 1;
 package Data::AsObject::Array;
 use strict;
@@ -1931,7 +1931,7 @@ sub all {
 return map { $Data::AsObject::__check_type->($_) ? Data::AsObject::dao($_) : $_} @{$self};
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Data/AsObject/Hash.pm}} = 1;
 package Data::AsObject::Hash;
 use strict;
@@ -2001,7 +2001,7 @@ if ( $Data::AsObject::__check_type->($data) eq "ARRAY" ) {
  }
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Devel/StackTrace.pm}} = 1;
 package Devel::StackTrace;
 use 5.006;
@@ -2317,7 +2317,7 @@ if ( my $e = $@ )
 return "$sub at " . $self->filename . ' line ' . $self->line;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Exception/Class/Base.pm}} = 1;
 package Exception::Class::Base;
 use strict;
@@ -2508,7 +2508,7 @@ sub caught
  return Exception::Class->caught(shift);
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Exception/Class.pm}} = 1;
 package Exception::Class;
 use 5.008001;
@@ -2674,7 +2674,7 @@ return unless blessed($e) && $e->isa( $_[1] );
 }
 sub Classes { sort keys %Exception::Class::CLASSES }
 1;
-}\n\n
+}
 BEGIN { $INC{q{File/Temp.pm}} = 1;
 package File::Temp;
 use 5.004;
@@ -3541,7 +3541,7 @@ sub DESTROY {
  }
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Entities.pm}} = 1;
 package HTML::Entities;
 use strict;
@@ -3704,7 +3704,7 @@ sub encode_entities
 *encode = \&encode_entities;
 *decode = \&decode_entities;
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/MethodMaker.pm}} = 1;
 package HTML::Mason::MethodMaker;
 use strict;
@@ -3800,7 +3800,7 @@ if ($p{read_write_contained})
  }
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Exceptions.pm}} = 1;
 package HTML::Mason::Exceptions;
 use strict;
@@ -4186,7 +4186,7 @@ sub full_message
 return sprintf("%s at %s line %d", $self->message || '', $self->comp_name || '', $self->line_number);
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Tools.pm}} = 1;
 package HTML::Mason::Tools;
 use strict;
@@ -4369,7 +4369,7 @@ my $s1 = 1;
  return ($s2 << 16) + $s1;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Utils.pm}} = 1;
 package HTML::Mason::Utils;
 use HTML::Mason::Tools qw(compress_path);
@@ -4401,7 +4401,7 @@ foreach my $key ( map { $q->$_() } @methods ) {
 return wantarray ? %args : \%args;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Escapes.pm}} = 1;
 package HTML::Mason::Escapes;
 use strict;
@@ -4429,7 +4429,7 @@ use bytes;
  ${ $_[0] } =~ s/([^a-zA-Z0-9_.-])/uc sprintf("%%%02x",ord($1))/eg;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Cache/BaseCache.pm}} = 1;
 package HTML::Mason::Cache::BaseCache;
 use strict;
@@ -4493,7 +4493,7 @@ if (my $obj = $self->get_object($key)) {
  }
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Plugin/Context.pm}} = 1;package HTML::Mason::Plugin::Context::StartRequest;
 use base qw(HTML::Mason::Plugin::Context);
 sub request { $_[0]->[0] }
@@ -4532,7 +4532,7 @@ sub wantarray { $_[0]->[3] }
 sub result { $_[0]->[4] }
 sub error { $_[0]->[5] }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Request.pm}} = 1;
 package HTML::Mason::Request;
 use strict;
@@ -5632,7 +5632,7 @@ sub PRINTF
  $self->PRINT(sprintf(shift, @_));
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/ComponentSource.pm}} = 1;
 package HTML::Mason::ComponentSource;
 use strict;
@@ -5681,7 +5681,7 @@ return $p{compiler}->compile( comp_source => $self->comp_source,
  );
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Resolver.pm}} = 1;
 package HTML::Mason::Resolver;
 use strict;
@@ -5707,7 +5707,7 @@ my $sub = (caller(1))[3];
  virtual_error "$sub is a virtual method and must be overridden in " . ref($self);
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Resolver/File.pm}} = 1;
 package HTML::Mason::Resolver::File;
 use strict;
@@ -5773,7 +5773,7 @@ return $path;
  return undef;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Interp.pm}} = 1;
 package HTML::Mason::Interp;
 use strict;
@@ -6536,7 +6536,7 @@ $self->{escapes}{$flag}->(\$text);
 return $text;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason.pm}} = 1;
 package HTML::Mason;
 use 5.006;
@@ -6547,7 +6547,7 @@ sub version
  return $HTML::Mason::VERSION;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Component.pm}} = 1;
 package HTML::Mason::Component;
 use strict;
@@ -6797,7 +6797,7 @@ sub create_time {
  return $self->load_time(@_);
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Component/FileBased.pm}} = 1;
 package HTML::Mason::Component::FileBased;
 use strict;
@@ -6829,7 +6829,7 @@ $self->{source_file} = $source->friendly_name;
 $self->SUPER::assign_runtime_properties($interp, $source);
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Component/Subcomponent.pm}} = 1;
 package HTML::Mason::Component::Subcomponent;
 use strict;
@@ -6859,7 +6859,7 @@ sub parent { return $_[0]->owner->parent }
 sub persistent { return $_[0]->owner->persistent }
 sub title { return $_[0]->owner->title . ":" . $_[0]->name }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Lexer.pm}} = 1;
 package HTML::Mason::Lexer;
 use strict;
@@ -7347,7 +7347,7 @@ HTML::Mason::Exception::Syntax->throw( error => $error,
  line_number => $self->line_number );
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Compiler.pm}} = 1;
 package HTML::Mason::Compiler;
 use strict;
@@ -7937,7 +7937,7 @@ sub HTML::Mason::Parser::new
  "the Lexer and Compiler modules, its replacements.\n";
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Compiler/ToObject.pm}} = 1;
 package HTML::Mason::Compiler::ToObject;
 use strict;
@@ -8491,7 +8491,7 @@ push @args, "  '$arg->{type}$arg->{name}' => { default => $def }";
 return join ",\n", @args;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTML/Mason/Plugin.pm}} = 1;
 package HTML::Mason::Plugin;
 use strict;
@@ -8509,7 +8509,7 @@ sub start_component_hook {
 sub end_component_hook {
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{URI/Escape.pm}} = 1;
 package URI::Escape;
 use strict;
@@ -8574,7 +8574,7 @@ sub escape_char {
  return join '', @URI::Escape::escapes{$_[0] =~ /(\C)/g};
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{URI.pm}} = 1;
 package URI;
 use strict;
@@ -8852,7 +8852,7 @@ sub STORABLE_thaw {
  $$self = $str;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{URI/_query.pm}} = 1;
 package URI::_query;
 use strict;
@@ -8935,7 +8935,7 @@ sub query_keywords
 }
 *equery = \&query;
 1;
-}\n\n
+}
 BEGIN { $INC{q{URI/_generic.pm}} = 1;
 package URI::_generic;
 require URI;
@@ -9157,7 +9157,7 @@ if ($path eq $bpath &&
 $rel;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{URI/_server.pm}} = 1;
 package URI::_server;
 require URI::_generic;
@@ -9304,7 +9304,7 @@ sub canonical
  $other;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{URI/_punycode.pm}} = 1;
 package URI::_punycode;
 use strict;
@@ -9437,7 +9437,7 @@ sub min {
  return $min;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{URI/_idna.pm}} = 1;
 package URI::_idna;
 use strict;
@@ -9493,7 +9493,7 @@ sub ToUnicode {
  return $label1;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{URI/http.pm}} = 1;
 package URI::http;
 require URI::_server;
@@ -9515,7 +9515,7 @@ if ($slash_path) {
  $other;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTTP/Date.pm}} = 1;
 package HTTP::Date;
 $VERSION = "5.831";
@@ -9734,7 +9734,7 @@ sub time2isoz (;$)
  $year+1900, $mon+1, $mday, $hour, $min, $sec);
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTTP/Status.pm}} = 1;
 package HTTP::Status;
 use strict;
@@ -9824,7 +9824,7 @@ sub is_error ($) { $_[0] >= 400 && $_[0] < 600; }
 sub is_client_error ($) { $_[0] >= 400 && $_[0] < 500; }
 sub is_server_error ($) { $_[0] >= 500 && $_[0] < 600; }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTTP/Headers.pm}} = 1;
 package HTTP::Headers;
 use strict;
@@ -10155,7 +10155,7 @@ sub _basic_auth {
  return;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTTP/Message.pm}} = 1;
 package HTTP::Message;
 use strict;
@@ -10800,7 +10800,7 @@ sub _boundary
  $b;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTTP/Request.pm}} = 1;
 package HTTP::Request;
 require HTTP::Message;
@@ -10913,7 +10913,7 @@ return $self->SUPER::dump(
  );
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTTP/Response.pm}} = 1;
 package HTTP::Response;
 require HTTP::Message;
@@ -11185,7 +11185,7 @@ sub fresh_until
  return $f - $self->current_age($opt{time}) + $opt{time};
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{LWP/MediaTypes.pm}} = 1;
 package LWP::MediaTypes;
 require Exporter;
@@ -11355,7 +11355,7 @@ my @priv_files = ();
  }
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTTP/Daemon.pm}} = 1;
 package HTTP::Daemon;
 use strict;
@@ -11886,7 +11886,7 @@ sub daemon
  ${*$self}{'httpd_daemon'};
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{HTTP/Server/Brick.pm}} = 1;
 package HTTP::Server::Brick;
 use version;
@@ -12204,7 +12204,7 @@ sub _log {
 $self->{"${log_key}_log"}->print( '[' . localtime() . "] [$$] ", $text, "\n" );
 }
 1; 
-}\n\n
+}
 BEGIN { $INC{q{Hash/Merge/Simple.pm}} = 1;
 package Hash::Merge::Simple;
 use warnings;
@@ -12251,7 +12251,7 @@ sub dclone_merge {
  return Storable::dclone( $result );
 }
 1; 
-}\n\n
+}
 BEGIN { $INC{q{JSON/PP58.pm}} = 1;
 package JSON::PP58;
 use 5.008;
@@ -12304,7 +12304,7 @@ sub JSON::PP::incr_reset {
  ( $_[0]->{_incr_parser} ||= JSON::PP::IncrParser->new )->incr_reset;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{JSON/PP.pm}} = 1;
 package JSON::PP;
 use 5.005;
@@ -13612,7 +13612,7 @@ sub incr_reset {
  $self->{incr_parsing} = 0;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{JSON.pm}} = 1;
 package JSON;
 use strict;
@@ -13883,7 +13883,7 @@ sub init {
 }
 package JSON;
 1;
-}\n\n
+}
 BEGIN { $INC{q{YAML/Tiny.pm}} = 1;
 package YAML::Tiny;
 use strict;
@@ -14328,7 +14328,7 @@ END_PERL
  }
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{Config/Any/YAML/Tiny.pm}} = 1;
 package Config::Any::YAML::Tiny;
 use strict;
@@ -14346,7 +14346,7 @@ require YAML::Tiny;
 }
 sub requires_any_of { 'YAML::Tiny' }
 1;
-}\n\n
+}
 BEGIN { $INC{q{MME/Util.pm}} = 1;
 package MME::Util;
 use strict;
@@ -14379,7 +14379,7 @@ $_ = Data::AsObject::dao( $_ ) for grep{ ref } values %$args;
 return $args;
 }
 1;
-}\n\n
+}
 BEGIN { $INC{q{MME/Plugin/Args/JSON.pm}} = 1;
 package MME::Plugin::Args::JSON;
 use strict;
@@ -14416,7 +14416,8 @@ sub end_request_hook {
  $context->request->notes( '__mp_aj_modified_comps', undef )
 }
 1;
-}\n\n
+}
+package MME::Server;
 use strict;
 use warnings;
 use HTML::Mason::Interp;
@@ -14431,9 +14432,95 @@ use Sys::Hostname;
 use Cwd;
 use Data::Dumper;
 use MME::Util;
+sub print_help {
+ print <<HELP;
+$0 - The Mason Mockup Engine
+
+MME is a single-file, pure-perl webserver primarily intended to be used by
+HTML coders during template development. Great care has been taken to make
+usage as unintrusive as possible, all you need is perl 5.8.1+ installation on
+(hopefully) any platform that is supported by perl (at least Linux, Mas OS X
+and Strawberry Perl on WinXP should work out of the box).
+
+TEMPLATES:
+Templates are handled by HTML::Mason 1.42 (without dhandler support) but
+currently there is no way to influence parameters, so you are stuck with
+defaults for autohandler_name and so on.
+
+ARGS EMULATION:
+Neither body nor query parameters are passed on to the templates (give me a
+holler when you need that), instead you can place an [component_file].\%args
+file beside any component file to specify (additional) args passed to it.
+You are free to use either JSON (parsed by JSON::PP) or YAML (parsed by
+YAML::Tiny) format for this file. The args are filtered through
+Data::AsObject, so you can easily say:
+
+  <\%args> \$my_value </\%args>
+  Value: <\% \$my_value->deep->deep->magic \%>
+  # for ( \$my_value->members ) { \$m->print( \$_ ) }
+
+Component args take precedence over autohandler args in the request component.
+
+SECURITY CONSIDERATIONS:
+Never EVER use this for any purpose other than local template development.
+I don't think it will eat kittens if left alone, but on the other hand, I
+didn't spend ANY time trying to figure out if it might. You have been warned!
+
+
+USAGE:
+  $0 [--debug] [--port PORT] [--static DIR]+ [ROOT]
+  $0 --help
+  $0 --usage
+
+    ROOT
+       Mason comp_root to serve by this instance (defaults to current dir)
+
+    -s DIR | --static DIR
+       List of directories served directly without intervention by HTML::Mason
+       When no static dirs are given, the default [css,js,gfx,static] is used
+
+    -p PORT | --port PORT
+       Port where the webserver listens for requests
+
+    -h | --help
+       Print this message and exit
+
+    --usage
+       Print terse usage info and exit
+
+    --debug
+       Log some additional information about the request
+
+DEVELOPMENT
+  Currently, this program does exactly what I need, so expect no further
+  development in terms of features. If you have an itch to scratch, I'll
+  happily accept patches (or even better pull requests), though.
+
+  I won't bother to build stand-alone binaries (with embedded perl), but
+  if anyone will, I'll find a place to host them.
+
+  The repository resides at: http://github.com/willert/mason-mockup-engine
+
+  Have fun!
+
+HELP
+}
+sub print_usage {
+ print <<USAGE;
+$0 - The Mason Mockup Engine
+
+Usage:
+  $0 [--debug] [--port PORT] [--static DIR]+ ROOT
+  $0 --help
+  $0 --usage
+
+USAGE
+}
 sub run {
- GetOptions( \ my %p, 'static=s@', 'port=i', 'debug' )
- or die "Invalid parms";
+ GetOptions( \ my %p, 'static|s=s@', 'port|p=i', 'debug', 'help|h', 'usage' )
+ or do{ print_usage() and exit 1 };
+
+do{ print_help() and exit } if $p{help};
 
 $p{port} ||= 3000;
 

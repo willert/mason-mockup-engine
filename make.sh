@@ -78,14 +78,14 @@ do
     echo 'BEGIN { $INC{q{'$X'}} = 1;'
     cat deps/$X |
       perl -ni -e ' 1 .. /__(DATA|END)__/ ? /__(DATA|END)__/ ? () : print : (); '
-    echo '}\n\n'
+    echo -e '}\n\n'
 done >> mme.pl
 
 for X in Config/Any/YAML/Tiny.pm MME/Util.pm MME/Plugin/Args/JSON.pm ; do
     echo 'BEGIN { $INC{q{'$X'}} = 1;'
     cat lib/$X | perl -ni -e \
         ' 1 .. /__(DATA|END)__/ ? /__(DATA|END)__/ ? () : print : (); '
-    echo '}\n\n'
+    echo -e '}\n\n'
 done >> mme.pl
 
 cat lib/MME/Server.pm >> mme.pl

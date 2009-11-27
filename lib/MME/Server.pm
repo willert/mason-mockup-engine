@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+package MME::Server;
 
 use strict;
 use warnings;
@@ -23,9 +23,97 @@ use Data::Dumper;
 
 use MME::Util;
 
+sub print_help {
+  print <<HELP;
+$0 - The Mason Mockup Engine
+
+MME is a single-file, pure-perl webserver primarily intended to be used by
+HTML coders during template development. Great care has been taken to make
+usage as unintrusive as possible, all you need is perl 5.8.1+ installation on
+(hopefully) any platform that is supported by perl (at least Linux, Mas OS X
+and Strawberry Perl on WinXP should work out of the box).
+
+TEMPLATES:
+Templates are handled by HTML::Mason 1.42 (without dhandler support) but
+currently there is no way to influence parameters, so you are stuck with
+defaults for autohandler_name and so on.
+
+ARGS EMULATION:
+Neither body nor query parameters are passed on to the templates (give me a
+holler when you need that), instead you can place an [component_file].\%args
+file beside any component file to specify (additional) args passed to it.
+You are free to use either JSON (parsed by JSON::PP) or YAML (parsed by
+YAML::Tiny) format for this file. The args are filtered through
+Data::AsObject, so you can easily say:
+
+  <\%args> \$my_value </\%args>
+  Value: <\% \$my_value->deep->deep->magic \%>
+  # for ( \$my_value->members ) { \$m->print( \$_ ) }
+
+Component args take precedence over autohandler args in the request component.
+
+SECURITY CONSIDERATIONS:
+Never EVER use this for any purpose other than local template development.
+I don't think it will eat kittens if left alone, but on the other hand, I
+didn't spend ANY time trying to figure out if it might. You have been warned!
+
+
+USAGE:
+  $0 [--debug] [--port PORT] [--static DIR]+ [ROOT]
+  $0 --help
+  $0 --usage
+
+    ROOT
+       Mason comp_root to serve by this instance (defaults to current dir)
+
+    -s DIR | --static DIR
+       List of directories served directly without intervention by HTML::Mason
+       When no static dirs are given, the default [css,js,gfx,static] is used
+
+    -p PORT | --port PORT
+       Port where the webserver listens for requests
+
+    -h | --help
+       Print this message and exit
+
+    --usage
+       Print terse usage info and exit
+
+    --debug
+       Log some additional information about the request
+
+DEVELOPMENT
+  Currently, this program does exactly what I need, so expect no further
+  development in terms of features. If you have an itch to scratch, I'll
+  happily accept patches (or even better pull requests), though.
+
+  I won't bother to build stand-alone binaries (with embedded perl), but
+  if anyone will, I'll find a place to host them.
+
+  The repository resides at: http://github.com/willert/mason-mockup-engine
+
+  Have fun!
+
+HELP
+}
+
+sub print_usage {
+  print <<USAGE;
+$0 - The Mason Mockup Engine
+
+Usage:
+  $0 [--debug] [--port PORT] [--static DIR]+ ROOT
+  $0 --help
+  $0 --usage
+
+USAGE
+}
+
 sub run {
-  GetOptions( \ my %p, 'static=s@', 'port=i', 'debug' )
-    or die "Invalid parms";
+  GetOptions( \ my %p, 'static|s=s@', 'port|p=i', 'debug', 'help|h', 'usage' )
+    or do{ print_usage() and exit 1 };
+
+  do{ print_help() and exit } if $p{help};
 
   $p{port} ||= 3000;
 
