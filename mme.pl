@@ -14599,7 +14599,9 @@ $mason_request->exec;
 
 for my $static_dir ( @static ) {
  my $uri = $static_dir->relative($comp_root)->as_foreign('Unix');
- $server->mount( $uri => { path => $comp_root } );
+ my $path = $comp_root->subdir($static_dir);
+ printf STDERR "%s -> %s\n", $uri, $static_dir;
+ $server->mount( "/$uri" => { path => "$static_dir", wildcard => 1 } );
  }
 
 $server->_log( error => "Serving Mason components in $comp_root" );

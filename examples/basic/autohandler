@@ -5,6 +5,7 @@
 
 <html>
   <body>
+    <img src="/gfx/face.jpg" />
     <h1>I asked:</h1>
     <% $outer %>
     <h1>Your component answered:</h1>

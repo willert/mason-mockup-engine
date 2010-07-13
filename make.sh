@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo 'use 5.8.4;
 
 BEGIN{

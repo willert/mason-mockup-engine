@@ -13,6 +13,8 @@ use Carp qw/carp confess/;
 
 use Path::Class qw/ dir file /;
 
+use FindBin qw/$Bin/;
+
 use MME::Plugin::Args::JSON;
 use Getopt::Long;
 use Sys::Hostname;
@@ -113,13 +115,26 @@ sub run {
   GetOptions( \ my %p, 'static|s=s@', 'port|p=i', 'debug', 'help|h', 'usage' )
     or do{ print_usage() and exit 1 };
 
-  do{ print_help() and exit } if $p{help};
+  do{ print_help() and exit } if $p{help} or @ARGV > 1;
 
   $p{port} ||= 3000;
 
   die "Could not serve more than one Mason directory" if @ARGV > 1;
 
-  $p{root} = @ARGV == 1 ? $ARGV[0] : getcwd();
+  $p{root} = $ARGV[0] if @ARGV == 1;
+
+  if ( not $p{root} ) {
+    my $default = dir( $Bin );
+    if ( -d $default->subdir( 'root' )->stringify ) {
+      $p{root} = $default->subdir( 'root' )->stringify;
+    } elsif ( -d $default->parent->subdir( 'root' )->stringify ) {
+      $p{root} = $default->parent->subdir( 'root' )->stringify;
+    }
+  }
+
+  die "Root directory not given and no default directory 'root' found"
+    unless defined $p{root};
+
   die "Root directory $p{root} doesn't exists" unless -d $p{root};
 
   $p{static} = [qw/ css js gfx static /] unless $p{static};
@@ -200,7 +215,9 @@ sub run {
 
   for my $static_dir ( @static ) {
     my $uri = $static_dir->relative($comp_root)->as_foreign('Unix');
-    $server->mount( $uri => { path => $comp_root } );
+    my $path = $comp_root->subdir($static_dir);
+    printf STDERR "%s -> %s\n", $uri, $static_dir;
+    $server->mount( "/$uri" => { path => "$static_dir", wildcard => 1 } );
   }
 
   $server->_log( error => "Serving Mason components in $comp_root" );
