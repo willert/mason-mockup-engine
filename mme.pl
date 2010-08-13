@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!env perl
 use 5.8.4;
 BEGIN{
  $INC{q{Params/ValidatePP.pm}} = 1;
@@ -14356,9 +14356,14 @@ use Hash::Merge::Simple qw/merge/;
 use Data::AsObject;
 sub load_args_for {
 
+my %p = ( extension => '%args' );
+ if ( ref $_[-1] and ref $_[-1] eq 'HASH' ) {
+ %p = ( %p, %{ pop @_ } );
+ }
+
 my @args_list;
  for ( @_ ) {
- my $args_file = $_ . '.%args';
+ my $args_file = join( '.', $_, $p{extension} );
  next unless -r $args_file;
  unshift @args_list, $args_file;
  }
@@ -14377,6 +14382,18 @@ my $args = merge( @{$args_from_file}{ @args_list } );
 $_ = Data::AsObject::dao( $_ ) for grep{ ref } values %$args;
 
 return $args;
+}
+sub load_config_from {
+ my $file = shift;
+
+return {} unless -e "$file";
+
+my $conf = Config::Any->load_files({
+ files => [ "$file" ], use_ext => 0, flatten_to_hash => 1,
+ force_plugins => [ map{"Config::Any::${_}"} qw/YAML::Tiny JSON/ ],
+ });
+
+return [ values %$conf ]->[0];
 }
 1;
 }
@@ -14426,6 +14443,7 @@ use HTTP::Status;
 use JSON;
 use Carp qw/carp confess/;
 use Path::Class qw/dir file/;
+use FindBin qw/$Bin/;
 use MME::Plugin::Args::JSON;
 use Getopt::Long;
 use Sys::Hostname;
@@ -14520,14 +14538,27 @@ sub run {
  GetOptions( \ my %p, 'static|s=s@', 'port|p=i', 'debug', 'help|h', 'usage' )
  or do{ print_usage() and exit 1 };
 
-do{ print_help() and exit } if $p{help};
+do{ print_help() and exit } if $p{help} or @ARGV > 1;
 
 $p{port} ||= 3000;
 
 die "Could not serve more than one Mason directory" if @ARGV > 1;
 
-$p{root} = @ARGV == 1 ? $ARGV[0] : getcwd();
- die "Root directory $p{root} doesn't exists" unless -d $p{root};
+$p{root} = $ARGV[0] if @ARGV == 1;
+
+if ( not $p{root} ) {
+ my $default = dir( $Bin );
+ if ( -d $default->subdir( 'root' )->stringify ) {
+ $p{root} = $default->subdir( 'root' )->stringify;
+ } elsif ( -d $default->parent->subdir( 'root' )->stringify ) {
+ $p{root} = $default->parent->subdir( 'root' )->stringify;
+ }
+ }
+
+die "Root directory not given and no default directory 'root' found"
+ unless defined $p{root};
+
+die "Root directory $p{root} doesn't exists" unless -d $p{root};
 
 $p{static} = [qw/css js gfx static/] unless $p{static};
 
@@ -14538,14 +14569,22 @@ my $comp_root = dir( $p{root} )->absolute;
  $comp_root->subdir( split '/', $_ );
  } @{ $p{static} };
 
+my $local_args = MME::Util::load_config_from(
+ $comp_root->file('config.%inc')
+ );
+
 my $interp = HTML::Mason::Interp->new(
  use_object_files => 0,
  comp_root => $comp_root->stringify,
  code_cache_max_size => 0,
  plugins => [qw/MME::Plugin::Args::JSON/],
+ %{ $local_args },
  );
 
-my $server = HTTP::Server::Brick->new( port => $p{port} );
+my $server = HTTP::Server::Brick->new(
+ port => $p{port},
+ daemon_args => [ Timeout => 0.01 ],
+ );
 
 $server->mount( '/' => {
  handler => sub {
@@ -14563,8 +14602,17 @@ if ( not -f $comp_path->stringify ) {
  $comp_path = file( $comp_path );
  }
 
-my $comp = $interp->load( '/' . $comp_path->relative( $comp_root ) );
- if ( not $comp ) {
+my $comp;
+ for ( $comp_path, dir( $comp_path )->file( 'index' ) ) {
+ $comp = eval{ $interp->load( '/' . $comp_path->relative($comp_root))};
+ if ( my $err = $@ ) {
+ $res->content_type( 'text/plain' );
+ $res->add_content( "Internal server error:\n\n" . $err );
+ return 1;
+ }
+ }
+
+if ( not $comp ) {
  warn "Can't find component for path $comp_path" if $p{debug};
  $res->code( RC_NOT_FOUND );
  return 1;
@@ -14572,13 +14620,16 @@ my $comp = $interp->load( '/' . $comp_path->relative( $comp_root ) );
 
 my @call_chain;
  my $current_comp = $comp_path;
- while ( $comp_root->contains( $current_comp ) ) {
- unshift @call_chain, $current_comp;
+ while ( $comp_root->subsumes( $current_comp ) ) {
+ unshift @call_chain, $current_comp
+ if $comp_root->contains( $current_comp );
  } continue {
  $current_comp = $current_comp->basename eq 'autohandler'
  ? $current_comp->dir->parent->file('autohandler')
  : $current_comp->dir->file('autohandler');
  }
+
+print STDERR "Call chain is: @call_chain\n" if $p{debug};
 
 my $args = MME::Util::load_args_for( @call_chain );
 
@@ -14590,7 +14641,13 @@ my $mason_request = $interp->make_request(
  out_method => sub{ $res->add_content( @_ ) },
  );
 
-$mason_request->exec;
+eval{ $mason_request->exec };
+
+if ( my $err = $@ ) {
+ $res->content_type( 'text/plain' );
+ $res->add_content( "Internal server error:\n\n" . $err );
+ return 1;
+ }
 
 1;
  },
@@ -14600,7 +14657,6 @@ $mason_request->exec;
 for my $static_dir ( @static ) {
  my $uri = $static_dir->relative($comp_root)->as_foreign('Unix');
  my $path = $comp_root->subdir($static_dir);
- printf STDERR "%s -> %s\n", $uri, $static_dir;
  $server->mount( "/$uri" => { path => "$static_dir", wildcard => 1 } );
  }
 

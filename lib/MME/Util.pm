@@ -24,9 +24,14 @@ use Data::AsObject;
 
 sub load_args_for {
 
+  my %p = ( extension => '%args' );
+  if ( ref $_[-1] and ref $_[-1] eq 'HASH' ) {
+    %p = ( %p, %{ pop @_ } );
+  }
+
   my @args_list;
   for ( @_ ) {
-    my $args_file = $_ . '.%args';
+    my $args_file = join( '.', $_, $p{extension} );
     next unless -r $args_file;
     unshift @args_list, $args_file;
   }
@@ -45,6 +50,19 @@ sub load_args_for {
   $_ = Data::AsObject::dao( $_ ) for grep{ ref } values %$args;
 
   return $args;
+}
+
+sub load_config_from {
+  my $file = shift;
+
+  return {} unless -e "$file";
+
+  my $conf = Config::Any->load_files({
+    files => [ "$file" ], use_ext => 0, flatten_to_hash => 1,
+    force_plugins => [ map{"Config::Any::${_}"} qw/YAML::Tiny JSON/ ],
+  });
+
+  return [ values %$conf ]->[0];
 }
 
 1;

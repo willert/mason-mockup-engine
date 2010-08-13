@@ -95,7 +95,7 @@ cat lib/MME/Server.pm >> mme.pl
 perl -MPerl::Squish -e 'Perl::Squish->file("mme.pl")';
 
 # restore shebang that was dropped while squishing
-( echo '#!/usr/bin/perl'; cat mme.pl ) | sponge mme.pl
+( echo '#!env perl'; cat mme.pl ) | sponge mme.pl
 
 echo '
   MME::Server->run();

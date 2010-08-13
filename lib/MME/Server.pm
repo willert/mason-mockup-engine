@@ -70,7 +70,7 @@ USAGE:
 
     -s DIR | --static DIR
        List of directories served directly without intervention by HTML::Mason
-       When no static dirs are given, the default [css,js,gfx,static] is used
+       When no static dirs are given, the default [css,js,gfx,img,static] is used
 
     -p PORT | --port PORT
        Port where the webserver listens for requests
@@ -137,7 +137,7 @@ sub run {
 
   die "Root directory $p{root} doesn't exists" unless -d $p{root};
 
-  $p{static} = [qw/ css js gfx static /] unless $p{static};
+  $p{static} = [qw/ css js gfx img static /] unless $p{static};
 
   my $comp_root = dir( $p{root} )->absolute;
   my @static = map{
@@ -146,14 +146,22 @@ sub run {
     $comp_root->subdir( split '/', $_ );
   } @{ $p{static} };
 
+  my $local_args = MME::Util::load_config_from(
+    $comp_root->file('config.%inc')
+  );
+
   my $interp = HTML::Mason::Interp->new(
     use_object_files    => 0,
     comp_root           => $comp_root->stringify,
     code_cache_max_size => 0,
     plugins             => [qw/ MME::Plugin::Args::JSON /],
+    %{ $local_args },
   );
 
-  my $server = HTTP::Server::Brick->new( port => $p{port} );
+  my $server = HTTP::Server::Brick->new(
+    port => $p{port},
+    daemon_args => [ Timeout => 0.01 ],
+  );
 
   $server->mount( '/' => {
     handler => sub {
@@ -171,7 +179,16 @@ sub run {
         $comp_path = file( $comp_path );
       }
 
-      my $comp = $interp->load( '/' . $comp_path->relative( $comp_root ) );
+      my $comp;
+      for ( $comp_path, dir( $comp_path )->file( 'index' ) ) {
+        $comp = eval{ $interp->load( '/' . $comp_path->relative($comp_root))};
+        if ( my $err = $@ ) {
+          $res->content_type( 'text/plain' );
+          $res->add_content( "Internal server error:\n\n" . $err );
+          return 1;
+        }
+      }
+
       if ( not $comp ) {
         warn "Can't find component for path $comp_path" if $p{debug};
         $res->code( RC_NOT_FOUND );
@@ -180,13 +197,16 @@ sub run {
 
       my @call_chain;
       my $current_comp = $comp_path;
-      while ( $comp_root->contains( $current_comp ) ) {
-        unshift @call_chain, $current_comp;
+      while ( $comp_root->subsumes( $current_comp ) ) {
+        unshift @call_chain, $current_comp
+          if $comp_root->contains( $current_comp );
       } continue {
         $current_comp = $current_comp->basename eq 'autohandler'
           ? $current_comp->dir->parent->file('autohandler')
             : $current_comp->dir->file('autohandler');
       }
+
+      print STDERR "Call chain is: @call_chain\n" if $p{debug};
 
       my $args = MME::Util::load_args_for( @call_chain );
 
@@ -198,7 +218,13 @@ sub run {
         out_method => sub{ $res->add_content( @_ ) },
       );
 
-      $mason_request->exec;
+      eval{ $mason_request->exec };
+
+      if ( my $err = $@ ) {
+        $res->content_type( 'text/plain' );
+        $res->add_content( "Internal server error:\n\n" . $err );
+        return 1;
+      }
 
       # my %deps = %INC;
       # foreach my $mod ( keys %deps ) {
@@ -216,7 +242,6 @@ sub run {
   for my $static_dir ( @static ) {
     my $uri = $static_dir->relative($comp_root)->as_foreign('Unix');
     my $path = $comp_root->subdir($static_dir);
-    printf STDERR "%s -> %s\n", $uri, $static_dir;
     $server->mount( "/$uri" => { path => "$static_dir", wildcard => 1 } );
   }
 
