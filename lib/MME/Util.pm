@@ -22,6 +22,16 @@ use Config::Any;
 use Hash::Merge::Simple qw/merge/;
 use Data::AsObject;
 
+sub _inflate_args {
+  if ( ref eq 'ARRAY' ) {
+    my $ref = $_;
+    local $_;
+    _inflate_args( $_ ) for @$ref;
+  } else {
+    $_ = Data::AsObject::dao( $_ )
+  }
+}
+
 sub load_args_for {
 
   my %p = ( extension => '%args' );
@@ -47,7 +57,7 @@ sub load_args_for {
 
   my $args = merge( @{$args_from_file}{ @args_list } );
 
-  $_ = Data::AsObject::dao( $_ ) for grep{ ref } values %$args;
+  _inflate_args() for grep{ ref } values %$args;
 
   return $args;
 }
@@ -61,6 +71,8 @@ sub load_config_from {
     files => [ "$file" ], use_ext => 0, flatten_to_hash => 1,
     force_plugins => [ map{"Config::Any::${_}"} qw/YAML::Tiny JSON/ ],
   });
+
+  die "Invalid config file: ${file}" unless values %$conf;
 
   return [ values %$conf ]->[0];
 }

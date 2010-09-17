@@ -14354,6 +14354,15 @@ use warnings;
 use Config::Any;
 use Hash::Merge::Simple qw/merge/;
 use Data::AsObject;
+sub _inflate_args {
+ if ( ref eq 'ARRAY' ) {
+ my $ref = $_;
+ local $_;
+ _inflate_args( $_ ) for @$ref;
+ } else {
+ $_ = Data::AsObject::dao( $_ )
+ }
+}
 sub load_args_for {
 
 my %p = ( extension => '%args' );
@@ -14379,7 +14388,7 @@ if ( my @err = grep{ not exists $args_from_file->{$_} } @args_list ) {
 
 my $args = merge( @{$args_from_file}{ @args_list } );
 
-$_ = Data::AsObject::dao( $_ ) for grep{ ref } values %$args;
+_inflate_args() for grep{ ref } values %$args;
 
 return $args;
 }
@@ -14392,6 +14401,8 @@ my $conf = Config::Any->load_files({
  files => [ "$file" ], use_ext => 0, flatten_to_hash => 1,
  force_plugins => [ map{"Config::Any::${_}"} qw/YAML::Tiny JSON/ ],
  });
+
+die "Invalid config file: ${file}" unless values %$conf;
 
 return [ values %$conf ]->[0];
 }
@@ -14495,7 +14506,7 @@ USAGE:
 
     -s DIR | --static DIR
        List of directories served directly without intervention by HTML::Mason
-       When no static dirs are given, the default [css,js,gfx,static] is used
+       When no static dirs are given, the default [css,js,gfx,img,static] is used
 
     -p PORT | --port PORT
        Port where the webserver listens for requests
@@ -14560,7 +14571,7 @@ die "Root directory not given and no default directory 'root' found"
 
 die "Root directory $p{root} doesn't exists" unless -d $p{root};
 
-$p{static} = [qw/css js gfx static/] unless $p{static};
+$p{static} = [qw/css js gfx img static/] unless $p{static};
 
 my $comp_root = dir( $p{root} )->absolute;
  my @static = map{
@@ -14583,7 +14594,7 @@ my $interp = HTML::Mason::Interp->new(
 
 my $server = HTTP::Server::Brick->new(
  port => $p{port},
- daemon_args => [ Timeout => 0.01 ],
+ daemon_args => [ Timeout => 0.3 ],
  );
 
 $server->mount( '/' => {
@@ -14604,7 +14615,9 @@ if ( not -f $comp_path->stringify ) {
 
 my $comp;
  for ( $comp_path, dir( $comp_path )->file( 'index' ) ) {
- $comp = eval{ $interp->load( '/' . $comp_path->relative($comp_root))};
+ $comp = eval{ $interp->load(
+ '/' . $comp_path->relative($comp_root)->as_foreign('Unix')
+ )};
  if ( my $err = $@ ) {
  $res->content_type( 'text/plain' );
  $res->add_content( "Internal server error:\n\n" . $err );
@@ -14619,14 +14632,13 @@ if ( not $comp ) {
  }
 
 my @call_chain;
- my $current_comp = $comp_path;
- while ( $comp_root->subsumes( $current_comp ) ) {
- unshift @call_chain, $current_comp
- if $comp_root->contains( $current_comp );
+ my $current_comp = $comp;
+ while ( my $parent = $current_comp->parent ) {
+ next unless $parent->is_file_based;
+ my $path = file( $parent->source_file );
+ unshift @call_chain, $path if $comp_root->contains( $path );
  } continue {
- $current_comp = $current_comp->basename eq 'autohandler'
- ? $current_comp->dir->parent->file('autohandler')
- : $current_comp->dir->file('autohandler');
+ $current_comp = $current_comp->parent
  }
 
 print STDERR "Call chain is: @call_chain\n" if $p{debug};

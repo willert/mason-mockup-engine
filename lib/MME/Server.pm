@@ -160,7 +160,7 @@ sub run {
 
   my $server = HTTP::Server::Brick->new(
     port => $p{port},
-    daemon_args => [ Timeout => 0.01 ],
+    daemon_args => [ Timeout => 0.3 ],
   );
 
   $server->mount( '/' => {
@@ -181,7 +181,9 @@ sub run {
 
       my $comp;
       for ( $comp_path, dir( $comp_path )->file( 'index' ) ) {
-        $comp = eval{ $interp->load( '/' . $comp_path->relative($comp_root))};
+        $comp = eval{ $interp->load(
+          '/' . $comp_path->relative($comp_root)->as_foreign('Unix')
+        )};
         if ( my $err = $@ ) {
           $res->content_type( 'text/plain' );
           $res->add_content( "Internal server error:\n\n" . $err );
@@ -195,15 +197,26 @@ sub run {
         return 1;
       }
 
+      # my @call_chain;
+      # my $current_comp = $comp_path;
+      #
+      # while ( $comp_root->subsumes( $current_comp ) ) {
+      #   unshift @call_chain, $current_comp
+      #     if $comp_root->contains( $current_comp );
+      # } continue {
+      #   $current_comp = $current_comp->basename eq 'autohandler'
+      #     ? $current_comp->dir->parent->file('autohandler')
+      #       : $current_comp->dir->file('autohandler');
+      # }
+
       my @call_chain;
-      my $current_comp = $comp_path;
-      while ( $comp_root->subsumes( $current_comp ) ) {
-        unshift @call_chain, $current_comp
-          if $comp_root->contains( $current_comp );
+      my $current_comp = $comp;
+      while ( my $parent = $current_comp->parent ) {
+        next unless $parent->is_file_based;
+        my $path = file( $parent->source_file );
+        unshift @call_chain, $path if $comp_root->contains( $path );
       } continue {
-        $current_comp = $current_comp->basename eq 'autohandler'
-          ? $current_comp->dir->parent->file('autohandler')
-            : $current_comp->dir->file('autohandler');
+        $current_comp = $current_comp->parent
       }
 
       print STDERR "Call chain is: @call_chain\n" if $p{debug};
