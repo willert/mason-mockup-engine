@@ -14460,6 +14460,7 @@ use Getopt::Long;
 use Sys::Hostname;
 use Cwd;
 use Data::Dumper;
+use URI::QueryParam;
 use MME::Util;
 sub print_help {
  print <<HELP;
@@ -14649,7 +14650,7 @@ printf STDERR "Args: %s\n", Dumper( $args ) if $p{debug};
 
 my $mason_request = $interp->make_request(
  comp => $comp,
- args => [ %$args ],
+ args => [ %{ $req->uri->query_form_hash }, %$args ],
  out_method => sub{ $res->add_content( @_ ) },
  );
 
