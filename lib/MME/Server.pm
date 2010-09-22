@@ -206,7 +206,7 @@ MASON
         return 1;
       }
 
-      my @call_chain;
+      my @call_chain = file( $comp->source_file );
       my $current_comp = $comp;
       while ( my $parent = $current_comp->parent ) {
         next unless $parent->is_file_based;
