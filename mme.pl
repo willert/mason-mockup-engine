@@ -14592,11 +14592,9 @@ my $interp = HTML::Mason::Interp->new(
  comp_root => $comp_root->stringify,
  code_cache_max_size => 0,
  plugins => [qw/MME::Plugin::Args::JSON/],
- preamble => <<'MASON'
-      <%init>
+ preamble => <<'MASON',
         $m->comp( $m->current_comp->name . '.%inc', params => \@_ )
           if $m->comp_exists( $m->current_comp->name . '.%inc' );
-      </%init>
 MASON
  %{ $local_args },
  );

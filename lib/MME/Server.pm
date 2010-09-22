@@ -25,6 +25,7 @@ use Data::Dumper;
 use URI::QueryParam;
 
 use MME::Util;
+use Encode;
 
 sub print_help {
   print <<HELP;
@@ -158,11 +159,10 @@ sub run {
     comp_root           => $comp_root->stringify,
     code_cache_max_size => 0,
     plugins             => [qw/ MME::Plugin::Args::JSON /],
-    preamble            => <<'MASON'
-      <%init>
-        $m->comp( $m->current_comp->name . '.%inc', params => \@_ )
-          if $m->comp_exists( $m->current_comp->name . '.%inc' );
-      </%init>
+    preamble            => <<'MASON',
+      use utf8;
+      $m->comp( $m->current_comp->name . '.%inc', params => \@_ )
+        if $m->comp_exists( $m->current_comp->name . '.%inc' );
 MASON
     %{ $local_args },
   );
@@ -225,7 +225,9 @@ MASON
       my $mason_request = $interp->make_request(
         comp => $comp,
         args => [ %{ $req->uri->query_form_hash }, %$args ],
-        out_method => sub{ $res->add_content( @_ ) },
+        out_method => sub{
+          $res->add_content( map{ encode( 'utf8', $_ )} @_ );
+        },
       );
 
       eval{ $mason_request->exec };
