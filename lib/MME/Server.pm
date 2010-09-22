@@ -60,6 +60,8 @@ Never EVER use this for any purpose other than local template development.
 I don't think it will eat kittens if left alone, but on the other hand, I
 didn't spend ANY time trying to figure out if it might. You have been warned!
 
+UNSUPPORTED MASON FEATURES:
+  - dhandler's (but you wouldn't want to explain them to your layouters anyways)
 
 USAGE:
   $0 [--debug] [--port PORT] [--static DIR]+ [ROOT]
@@ -156,6 +158,12 @@ sub run {
     comp_root           => $comp_root->stringify,
     code_cache_max_size => 0,
     plugins             => [qw/ MME::Plugin::Args::JSON /],
+    preamble            => <<'MASON'
+      <%init>
+        $m->comp( $m->current_comp->name . '.%inc', params => \@_ )
+          if $m->comp_exists( $m->current_comp->name . '.%inc' );
+      </%init>
+MASON
     %{ $local_args },
   );
 
@@ -197,18 +205,6 @@ sub run {
         $res->code( RC_NOT_FOUND );
         return 1;
       }
-
-      # my @call_chain;
-      # my $current_comp = $comp_path;
-      #
-      # while ( $comp_root->subsumes( $current_comp ) ) {
-      #   unshift @call_chain, $current_comp
-      #     if $comp_root->contains( $current_comp );
-      # } continue {
-      #   $current_comp = $current_comp->basename eq 'autohandler'
-      #     ? $current_comp->dir->parent->file('autohandler')
-      #       : $current_comp->dir->file('autohandler');
-      # }
 
       my @call_chain;
       my $current_comp = $comp;

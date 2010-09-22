@@ -14496,6 +14496,8 @@ Never EVER use this for any purpose other than local template development.
 I don't think it will eat kittens if left alone, but on the other hand, I
 didn't spend ANY time trying to figure out if it might. You have been warned!
 
+UNSUPPORTED MASON FEATURES:
+  - dhandler's (but you wouldn't want to explain them to your layouters anyways)
 
 USAGE:
   $0 [--debug] [--port PORT] [--static DIR]+ [ROOT]
@@ -14590,6 +14592,12 @@ my $interp = HTML::Mason::Interp->new(
  comp_root => $comp_root->stringify,
  code_cache_max_size => 0,
  plugins => [qw/MME::Plugin::Args::JSON/],
+ preamble => <<'MASON'
+      <%init>
+        $m->comp( $m->current_comp->name . '.%inc', params => \@_ )
+          if $m->comp_exists( $m->current_comp->name . '.%inc' );
+      </%init>
+MASON
  %{ $local_args },
  );
 
