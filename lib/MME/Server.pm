@@ -238,14 +238,6 @@ MASON
         return 1;
       }
 
-      # my %deps = %INC;
-      # foreach my $mod ( keys %deps ) {
-      #   delete $deps{ $mod } unless $deps{ $mod } =~ m|\bdeps/|;
-      # }
-      # $server->_log( error => sprintf(
-      #   "Loaded modules:\n%s", Dumper( \%deps )
-      # )) if $p{debug};
-
       1;
     },
     wildcard => 1,
